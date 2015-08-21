@@ -8,8 +8,13 @@
     }
     /*#output { font-size: 16px; font-family: Helvetica; line-height: 24px }*/
     </style>
+	
     <script type="text/javascript">
     var map;
+
+	window.onload = function(){
+    	initMap();
+	}
 
     function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
@@ -19,12 +24,13 @@
             },
             zoom: 8
         });
+
+        checkAuth();
     }
 
     // Your Client ID can be retrieved from your project in the Google
     // Developer Console, https://console.developers.google.com
     var CLIENT_ID = '50800806960-g7e5eui58knqg936jbidnm2a78lbep97.apps.googleusercontent.com';
-
     var SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"];
 
     /**
@@ -148,9 +154,9 @@
         pre.appendChild(textContent);
     }
     </script>
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyByVZpD5AcnhICTVvMUJn4iU7Gx7XGPeCk&callback=initMap">
-    </script>
-    <script src="https://apis.google.com/js/client.js?onload=checkAuth"></script>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyByVZpD5AcnhICTVvMUJn4iU7Gx7XGPeCk"></script>
+    <script src="https://apis.google.com/js/client.js"></script>
 </head>
 
 <body>
