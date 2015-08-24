@@ -2,21 +2,21 @@
 
 <head>
     <style type="text/css">
-    #map {
-        height: 500px;
-        width: auto;
-    }
-    /*#output { font-size: 16px; font-family: Helvetica; line-height: 24px }*/
+        #map {
+            height: 500px;
+            width: auto;
+        }
+        /*#output { font-size: 16px; font-family: Helvetica; line-height: 24px }*/
     </style>
-	
+
     <script type="text/javascript">
-    var map;
+        var map;
 
-	window.onload = function(){
-    	initMap();
-	}
+        window.onload = function(){
+         initMap();
+     }
 
-    function initMap() {
+     function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
             center: {
                 lat: -34.397,
@@ -36,7 +36,7 @@
     /**
      * Check if current user has authorized this application.
      */
-    function checkAuth() {
+     function checkAuth() {
         gapi.auth.authorize({
             'client_id': CLIENT_ID,
             'scope': SCOPES,
@@ -49,7 +49,7 @@
      *
      * @param {Object} authResult Authorization result.
      */
-    function handleAuthResult(authResult) {
+     function handleAuthResult(authResult) {
         var authorizeDiv = document.getElementById('authorize-div');
         if (authResult && !authResult.error) {
             // Hide auth UI, then load client library.
@@ -67,13 +67,13 @@
      *
      * @param {Event} event Button click event.
      */
-    function handleAuthClick(event) {
+     function handleAuthClick(event) {
         gapi.auth.authorize({
-                client_id: CLIENT_ID,
-                scope: SCOPES,
-                immediate: false
-            },
-            handleAuthResult);
+            client_id: CLIENT_ID,
+            scope: SCOPES,
+            immediate: false
+        },
+        handleAuthResult);
         return false;
     }
 
@@ -81,7 +81,7 @@
      * Load Google Calendar client library. List upcoming events
      * once client library is loaded.
      */
-    function loadCalendarApi() {
+     function loadCalendarApi() {
         gapi.client.load('calendar', 'v3', listUpcomingEvents);
     }
 
@@ -90,34 +90,32 @@
      * the authorized user's calendar. If no events are found an
      * appropriate message is printed.
      */
-    function listUpcomingEvents() {
+     function listUpcomingEvents() {
         var request = gapi.client.calendar.events.list({
             'calendarId': 'primary',
             'timeMin': (new Date()).toISOString(),
             'showDeleted': false,
             'singleEvents': true,
-            'maxResults': 10,
+            'maxResults': 250,
             'orderBy': 'startTime'
         });
 
         request.execute(function(resp) {
-                var events = resp.items;
+            var events = resp.items;
+
+            if (!events.length > 0) { appendPre('No upcoming events found.'); }
+            else {
                 appendPre('Upcoming events:');
-
-                if (events.length > 0) {
-
-                    var geocoder = new google.maps.Geocoder();
-
-                    for (i = 0; i < events.length; i++) {
-                        var event = events[i];
-                        var when = event.start.dateTime;
-                        var location = event.location;
-                        if (!when) {
-                            when = event.start.date;
-                        }
-                        if (!location) {
-                            location = '';
-                        } else {
+                for (i = 0; i < events.length; i++) {
+                    (function(index) {
+                        var ev = events[index];
+                        var when = ev.start.dateTime;
+                        var location = ev.location;
+                        var labelString = ev.summary + '<br>' + when;
+                        var label = new google.maps.InfoWindow({ content:labelString });
+                        if (!location || !when) { return; } 
+                        else {
+                            var geocoder = new google.maps.Geocoder();
                             geocoder.geocode({
                                 'address': location
                             }, function(results, status) {
@@ -125,7 +123,11 @@
                                     map.setCenter(results[0].geometry.location);
                                     var marker = new google.maps.Marker({
                                         map: map,
-                                        position: results[0].geometry.location
+                                        position: results[0].geometry.location,
+                                        title: ev.summary
+                                    });
+                                    marker.addListener('click', function() {
+                                        label.open(map, marker);
                                     });
                                 } else {
                                     alert("Geocode was not successful for the following reason: " + status);
@@ -133,14 +135,12 @@
                             });
                         }
 
-                    appendPre(event.summary + ' (' + when + ')' + location)
+                        appendPre(ev.summary + ' (' + when + ')' + location)
+                    })(i);
                 }
-            } else {
-                appendPre('No upcoming events found.');
             }
-
         });
-    }
+}
 
     /**
      * Append a pre element to the body containing the given message
@@ -148,15 +148,15 @@
      *
      * @param {string} message Text to be placed in pre element.
      */
-    function appendPre(message) {
+     function appendPre(message) {
         var pre = document.getElementById('output');
         var textContent = document.createTextNode(message + '\n');
         pre.appendChild(textContent);
     }
-    </script>
+</script>
 
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyByVZpD5AcnhICTVvMUJn4iU7Gx7XGPeCk"></script>
-    <script src="https://apis.google.com/js/client.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyByVZpD5AcnhICTVvMUJn4iU7Gx7XGPeCk"></script>
+<script src="https://apis.google.com/js/client.js"></script>
 </head>
 
 <body>
